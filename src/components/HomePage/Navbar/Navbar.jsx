@@ -18,7 +18,7 @@ function Navbar({ cardData, setCardData }) {
         `https://api.trello.com/1/boards/?name=${title}&key=${Credentails.api_key}&token=${Credentails.api_token}`
       );
 
-      setCardData([...cardData, response.data]);
+      setCardData({ type: "addcard", payload: { newCard: response.data } });
       enqueueSnackbar("Board created successfully!", { variant: "success" });
     } catch (e) {
       console.log("Unable to create board");

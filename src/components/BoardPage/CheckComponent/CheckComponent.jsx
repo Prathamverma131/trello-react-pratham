@@ -2,15 +2,29 @@ import React from "react";
 import { Box, Container, Typography, Button } from "@mui/material";
 import axios from "axios";
 import Credentials from "../../../utilities/credentials/credentials.json";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import CheckItem from "../CheckItem/CheckItem";
 
+const checkItemReducer = (state, action) => {
+  switch (action.type) {
+    case "apicall":
+      return action.payload.itemdata;
+    case "additem":
+      return [...state, action.payload.newitem];
+    case "filterData":
+      return action.payload.filterData;
+    case "checkData":
+      return action.payload.checkData;
+    default:
+      return state;
+  }
+};
+
 function CheckComponent({ data, checkList, setCheckList }) {
-  const [checkItems, setCheckItems] = useState([]);
   const [itemsName, setItemsName] = useState("");
+  const [checkItems, itemsDispatcher] = useReducer(checkItemReducer, []);
 
   const postApiCall = async () => {
-    console.log(itemsName, data.id);
     try {
       let jsonData = await axios.post(
         `https://api.trello.com/1/checklists/${data.id}/checkItems`,
@@ -23,9 +37,12 @@ function CheckComponent({ data, checkList, setCheckList }) {
           },
         }
       );
-
-      setCheckItems([...checkItems, jsonData.data]);
+      itemsDispatcher({
+        type: "additem",
+        payload: { newitem: jsonData.data },
+      });
     } catch (e) {
+      itemsDispatcher();
       console.log("Api call failed!");
     }
   };
@@ -41,7 +58,10 @@ function CheckComponent({ data, checkList, setCheckList }) {
       }
     );
     let filteredData = checkList.filter((check) => check.id !== id);
-    setCheckList(filteredData);
+    setCheckList({
+      type: "filteredlist",
+      payload: { filteredlist: filteredData },
+    });
   };
 
   const apiCall = async () => {
@@ -55,9 +75,13 @@ function CheckComponent({ data, checkList, setCheckList }) {
           },
         }
       );
-      setCheckItems(jsonData.data);
+      itemsDispatcher({
+        type: "apicall",
+        payload: { itemdata: jsonData.data },
+      });
     } catch (e) {
       console.log(e.message);
+      itemsDispatcher();
     }
   };
 
@@ -93,7 +117,7 @@ function CheckComponent({ data, checkList, setCheckList }) {
               key={item.id}
               data={item}
               checkItems={checkItems}
-              setCheckItems={setCheckItems}
+              setCheckItems={itemsDispatcher}
             />
           );
         })}

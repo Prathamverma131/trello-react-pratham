@@ -8,11 +8,14 @@ import Credentials from "../../../utilities/credentials/credentials.json";
 
 const Workspace = ({ cardData, setCardData }) => {
   let fetchData = async () => {
-    const jsonData = await axios.get(
-      `https://api.trello.com/1/members/me/boards?key=${Credentials.api_key}&token=${Credentials.api_token}`
-    );
-    const cardArray = jsonData.data;
-    setCardData([...cardArray]);
+    try {
+      const jsonData = await axios.get(
+        `https://api.trello.com/1/members/me/boards?key=${Credentials.api_key}&token=${Credentials.api_token}`
+      );
+      setCardData({ type: "fetchdata", payload: { cardData: jsonData.data } });
+    } catch (e) {
+      console.log("error");
+    }
   };
 
   useEffect(() => {

@@ -30,7 +30,7 @@ function BoardBody({ listData, setListData, setModal, setCardId }) {
           },
         }
       );
-      setListData((prev) => [...prev, jsonData.data]);
+      setListData({ type: "addlist", payload: { addedList: jsonData.data } });
       enqueueSnackbar("Created list successfully!", { variant: "success" });
     } catch (e) {
       enqueueSnackbar("Unable to create!", { variant: "warning" });

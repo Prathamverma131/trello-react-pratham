@@ -33,9 +33,12 @@ function CheckItem({ data, checkItems, setCheckItems }) {
         return item;
       });
 
-      setCheckItems(filteredData);
+      setCheckItems({
+        type: "checkData",
+        payload: { checkData: filteredData },
+      });
     } catch (e) {
-      console.log("api call failed");
+      setCheckItems();
     }
   };
 
@@ -52,8 +55,12 @@ function CheckItem({ data, checkItems, setCheckItems }) {
       );
 
       let filteredData = checkItems.filter((item) => data.id !== item.id);
-      setCheckItems(filteredData);
+      setCheckItems({
+        type: "filterData",
+        payload: { filterData: filteredData },
+      });
     } catch (e) {
+      setCheckItems();
       console.log("Error", e.message);
     }
   };

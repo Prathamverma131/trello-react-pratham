@@ -15,7 +15,11 @@ function Card({ data, cardsData, setCardsData, setModal, setCardId }) {
       );
 
       let filteredData = cardsData.filter((card) => card.id !== id);
-      setCardsData(filteredData);
+
+      setCardsData({
+        type: "deletecard",
+        payload: { filteredCard: filteredData },
+      });
       enqueueSnackbar("Deleted card successfully!", { variant: "warning" });
     } catch (e) {
       console.log("APi call failed");

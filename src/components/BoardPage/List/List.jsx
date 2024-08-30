@@ -1,5 +1,5 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { act } from "react";
+import { useState, useEffect, useReducer } from "react";
 import { Box, Typography, Container, Paper, Button } from "@mui/material";
 import Credentails from "../../../utilities/credentials/credentials.json";
 import axios from "axios";
@@ -7,12 +7,25 @@ import BasicTextFields from "../../../utilities/TextField";
 import Card from "../Card/Card";
 import { useSnackbar } from "notistack";
 
+const cardReducer = (state, action) => {
+  switch (action.type) {
+    case "apicall":
+      return action.payload.cardData;
+    case "newcard":
+      return [...state, action.payload.newCardData];
+    case "deletecard":
+      return action.payload.filteredCard;
+    default:
+      return state;
+  }
+};
+
 function List({ data, setListData, listData, setModal, setCardId }) {
-  const [cardsData, setCardsData] = useState([]);
+  const [cardsData, cardsDispatcher] = useReducer(cardReducer, []);
   const [cardName, setCardName] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
-  const postApi = async (id) => {
+  const deleteApi = async (id) => {
     try {
       const jsonData = await axios.put(
         `https://api.trello.com/1/lists/${id}/closed?key=${Credentails.api_key}&token=${Credentails.api_token}&value=true`
@@ -20,7 +33,11 @@ function List({ data, setListData, listData, setModal, setCardId }) {
       let filteredData = listData.filter(
         (list) => list.id !== jsonData.data.id
       );
-      setListData(filteredData);
+      setListData({
+        type: "deletelist",
+        payload: { deletedList: filteredData },
+      });
+
       enqueueSnackbar("Deleted list successfully", { variant: "warning" });
     } catch (e) {
       enqueueSnackbar("Unable to delete list", { variant: "error" });
@@ -46,9 +63,13 @@ function List({ data, setListData, listData, setModal, setCardId }) {
         }
       );
 
-      setCardsData((prev) => [...prev, jsonData.data]);
+      cardsDispatcher({
+        type: "newcard",
+        payload: { newCardData: jsonData.data },
+      });
       enqueueSnackbar("Created card successfully!", { variant: "success" });
     } catch {
+      cardsDispatcher();
       console.log("Unable to create card");
     }
   };
@@ -71,7 +92,10 @@ function List({ data, setListData, listData, setModal, setCardId }) {
           },
         }
       );
-      setCardsData(jsonData.data);
+      cardsDispatcher({
+        type: "apicall",
+        payload: { cardData: jsonData.data },
+      });
     };
 
     try {
@@ -104,7 +128,7 @@ function List({ data, setListData, listData, setModal, setCardId }) {
           <span
             className="material-symbols-outlined"
             onClick={() => {
-              postApi(data.id);
+              deleteApi(data.id);
             }}
           >
             delete
@@ -124,7 +148,7 @@ function List({ data, setListData, listData, setModal, setCardId }) {
             key={card.id}
             data={card}
             cardsData={cardsData}
-            setCardsData={setCardsData}
+            setCardsData={cardsDispatcher}
             setModal={setModal}
             setCardId={setCardId}
           />

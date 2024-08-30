@@ -2,17 +2,30 @@ import React from "react";
 import Navbar from "./Navbar/Navbar";
 import { Box, Typography, Container } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import axios from "axios";
 import BoardBody from "./BoardBody/BoardBody";
 import { SnackbarProvider } from "notistack";
 import CheckList from "../CheckList/CheckList";
 
+const ListReducer = (state, action) => {
+  switch (action.type) {
+    case "apicall":
+      return action.payload.listData;
+    case "addlist":
+      return [...state, action.payload.addedList];
+    case "deletelist":
+      return action.payload.deletedList;
+    default:
+      return state;
+  }
+};
+
 function Board() {
   const { boardName, boardId } = useParams();
-  const [listData, setListData] = useState([]);
   const [openList, setOpenList] = useState(false);
   const [cardId, setCardId] = useState("");
+  const [listData, listDispatcher] = useReducer(ListReducer, []);
 
   useEffect(() => {
     try {
@@ -20,11 +33,14 @@ function Board() {
         let jsonData = await axios.get(
           `https://api.trello.com/1/boards/${boardId}/lists?key=3201d7b21e55820e3304f953bea743f8&token=ATTA4a66862219b268712569cd5453e27bfe6f955326e5e6c6ae0b92b4c410a4b0d28FD4C6CA`
         );
-        setListData(jsonData.data);
+        listDispatcher({
+          type: "apicall",
+          payload: { listData: jsonData.data },
+        });
       };
       fetchApi();
     } catch (e) {
-      setListData([]);
+      listDispatcher();
     } finally {
     }
   }, [boardId]);
@@ -35,7 +51,7 @@ function Board() {
         <Navbar />
         <BoardBody
           listData={listData}
-          setListData={setListData}
+          setListData={listDispatcher}
           setModal={setOpenList}
           setCardId={setCardId}
         />

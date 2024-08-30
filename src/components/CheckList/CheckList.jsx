@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import styles from "./CheckList.module.css";
 import { Box, Button, Typography } from "@mui/material";
 import axios from "axios";
@@ -7,9 +7,22 @@ import Credentials from "../../utilities/credentials/credentials.json";
 import CheckComponent from "../BoardPage/CheckComponent/CheckComponent";
 import BasicTextFields from "../../utilities/TextField";
 
+const checkListReducer = (state, action) => {
+  switch (action.type) {
+    case "apicall":
+      return action.payload.checkListData;
+    case "newlist":
+      return [...state, action.payload.newlist];
+    case "filteredlist":
+      return action.payload.filteredlist;
+    default:
+      return state;
+  }
+};
+
 function CheckList({ setModal, cardId }) {
-  const [checkList, setCheckList] = useState([]);
   const [checkListName, setCheckListName] = useState("");
+  const [checkList, checkListDispatcher] = useReducer(checkListReducer, []);
 
   const postData = async () => {
     try {
@@ -25,10 +38,12 @@ function CheckList({ setModal, cardId }) {
           },
         }
       );
-
-      setCheckList((prev) => [...prev, jsonData.data]);
+      checkListDispatcher({
+        type: "newlist",
+        payload: { newlist: jsonData.data },
+      });
     } catch (e) {
-      console.log("error");
+      checkListDispatcher();
     }
   };
 
@@ -42,8 +57,10 @@ function CheckList({ setModal, cardId }) {
         },
       }
     );
-
-    setCheckList(jsonData.data);
+    checkListDispatcher({
+      type: "apicall",
+      payload: { checkListData: jsonData.data },
+    });
   };
 
   useEffect(() => {
@@ -51,6 +68,7 @@ function CheckList({ setModal, cardId }) {
       fetchData();
     } catch {
       console.log("error while fetching checklist");
+      checkListDispatcher();
     }
   }, [cardId]);
 
@@ -113,7 +131,7 @@ function CheckList({ setModal, cardId }) {
               <CheckComponent
                 data={item}
                 checkList={checkList}
-                setCheckList={setCheckList}
+                setCheckList={checkListDispatcher}
                 key={item.id}
               />
             );
