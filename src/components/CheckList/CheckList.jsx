@@ -6,19 +6,7 @@ import axios from "axios";
 import Credentials from "../../utilities/credentials/credentials.json";
 import CheckComponent from "../BoardPage/CheckComponent/CheckComponent";
 import BasicTextFields from "../../utilities/TextField";
-
-const checkListReducer = (state, action) => {
-  switch (action.type) {
-    case "apicall":
-      return action.payload.checkListData;
-    case "newlist":
-      return [...state, action.payload.newlist];
-    case "filteredlist":
-      return action.payload.filteredlist;
-    default:
-      return state;
-  }
-};
+import { checkListReducer } from "../../utilities/useReducer/useReducer";
 
 function CheckList({ setModal, cardId }) {
   const [checkListName, setCheckListName] = useState("");

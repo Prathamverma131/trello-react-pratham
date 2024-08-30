@@ -4,17 +4,7 @@ import Workspace from "./Workspace/Workspace";
 import { useState, useReducer } from "react";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import Credentials from "../../utilities/credentials/credentials.json";
-
-const cardReducer = (state, action) => {
-  switch (action.type) {
-    case "fetchdata":
-      return action.payload.cardData;
-    case "addcard":
-      return [...state, action.payload.newCard];
-    default:
-      return state;
-  }
-};
+import { cardReducer } from "../../utilities/useReducer/useReducer";
 
 const Home = () => {
   let [cardState, cardDispatcher] = useReducer(cardReducer, []);

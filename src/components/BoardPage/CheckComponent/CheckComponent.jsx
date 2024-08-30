@@ -4,21 +4,7 @@ import axios from "axios";
 import Credentials from "../../../utilities/credentials/credentials.json";
 import { useState, useEffect, useReducer } from "react";
 import CheckItem from "../CheckItem/CheckItem";
-
-const checkItemReducer = (state, action) => {
-  switch (action.type) {
-    case "apicall":
-      return action.payload.itemdata;
-    case "additem":
-      return [...state, action.payload.newitem];
-    case "filterData":
-      return action.payload.filterData;
-    case "checkData":
-      return action.payload.checkData;
-    default:
-      return state;
-  }
-};
+import { checkItemReducer } from "../../../utilities/useReducer/useReducer";
 
 function CheckComponent({ data, checkList, setCheckList }) {
   const [itemsName, setItemsName] = useState("");

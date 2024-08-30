@@ -7,19 +7,7 @@ import axios from "axios";
 import BoardBody from "./BoardBody/BoardBody";
 import { SnackbarProvider } from "notistack";
 import CheckList from "../CheckList/CheckList";
-
-const ListReducer = (state, action) => {
-  switch (action.type) {
-    case "apicall":
-      return action.payload.listData;
-    case "addlist":
-      return [...state, action.payload.addedList];
-    case "deletelist":
-      return action.payload.deletedList;
-    default:
-      return state;
-  }
-};
+import { ListReducer } from "../../utilities/useReducer/useReducer";
 
 function Board() {
   const { boardName, boardId } = useParams();

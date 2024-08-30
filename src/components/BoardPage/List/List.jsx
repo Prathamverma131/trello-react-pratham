@@ -6,22 +6,10 @@ import axios from "axios";
 import BasicTextFields from "../../../utilities/TextField";
 import Card from "../Card/Card";
 import { useSnackbar } from "notistack";
-
-const cardReducer = (state, action) => {
-  switch (action.type) {
-    case "apicall":
-      return action.payload.cardData;
-    case "newcard":
-      return [...state, action.payload.newCardData];
-    case "deletecard":
-      return action.payload.filteredCard;
-    default:
-      return state;
-  }
-};
+import { cardListReducer } from "../../../utilities/useReducer/useReducer";
 
 function List({ data, setListData, listData, setModal, setCardId }) {
-  const [cardsData, cardsDispatcher] = useReducer(cardReducer, []);
+  const [cardsData, cardsDispatcher] = useReducer(cardListReducer, []);
   const [cardName, setCardName] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
